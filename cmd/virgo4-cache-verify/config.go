@@ -8,8 +8,7 @@ import (
 
 // ServiceConfig defines all of the service configuration parameters
 type ServiceConfig struct {
-
-	InputFile        string // the input file
+	InputFile string // the input file
 
 	PostgresHost     string // the postgres endpoint
 	PostgresPort     int    // and port
