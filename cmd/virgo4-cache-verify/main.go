@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 )
 
 //
@@ -16,14 +17,20 @@ func main() {
 	fatalIfError(err)
 
 	// create a new loader
-	loader, e := NewRecordLoader( cfg.InputFile )
-	fatalIfError(e)
+	loader, err := NewRecordLoader(cfg.InputFile)
+	fatalIfError(err)
 
 	// validate the file and ensure each item appears in the cache
-	_ = loader.Validate(cacheProxy)
+	err = loader.Validate(cacheProxy)
 	loader.Done()
 
-	log.Printf("INFO: terminating normally")
+	if err != nil {
+		log.Printf("INFO: terminating with error: %s", err.Error())
+		os.Exit(1)
+	} else {
+		log.Printf("INFO: terminating normally")
+		os.Exit(0)
+	}
 }
 
 //
