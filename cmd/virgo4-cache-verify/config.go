@@ -8,7 +8,8 @@ import (
 
 // ServiceConfig defines all of the service configuration parameters
 type ServiceConfig struct {
-	InputFile string // the input file
+	InputFile       string // the input file
+	DataSourceNames string // the data sources to include in the query
 
 	PostgresHost     string // the postgres endpoint
 	PostgresPort     int    // and port
@@ -56,6 +57,7 @@ func LoadConfiguration() *ServiceConfig {
 	var cfg ServiceConfig
 
 	cfg.InputFile = ensureSetAndNonEmpty("VIRGO4_CACHE_VERIFY_INFILE")
+	cfg.DataSourceNames = ensureSetAndNonEmpty("VIRGO4_CACHE_VERIFY_DATA_SOURCE")
 	cfg.PostgresHost = ensureSetAndNonEmpty("VIRGO4_CACHE_VERIFY_POSTGRES_HOST")
 	cfg.PostgresPort = envToInt("VIRGO4_CACHE_VERIFY_POSTGRES_PORT")
 	cfg.PostgresUser = ensureSetAndNonEmpty("VIRGO4_CACHE_VERIFY_POSTGRES_USER")
@@ -64,6 +66,7 @@ func LoadConfiguration() *ServiceConfig {
 	cfg.PostgresTable = ensureSetAndNonEmpty("VIRGO4_CACHE_VERIFY_POSTGRES_TABLE")
 
 	log.Printf("[CONFIG] InputFile               = [%s]", cfg.InputFile)
+	log.Printf("[CONFIG] DataSourceNames         = [%s]", cfg.DataSourceNames)
 	log.Printf("[CONFIG] PostgresHost            = [%s]", cfg.PostgresHost)
 	log.Printf("[CONFIG] PostgresPort            = [%d]", cfg.PostgresPort)
 	log.Printf("[CONFIG] PostgresUser            = [%s]", cfg.PostgresUser)

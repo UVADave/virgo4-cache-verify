@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	dbx "github.com/go-ozzo/ozzo-dbx"
@@ -30,8 +31,9 @@ type CacheProxy interface {
 
 // our implementation
 type cacheProxyImpl struct {
-	tableName string
-	db        *dbx.DB
+	tableName   string
+	dataSources []string
+	db          *dbx.DB
 }
 
 //
@@ -53,6 +55,7 @@ func NewCacheProxy(config *ServiceConfig) (CacheProxy, error) {
 	//db.LogFunc = log.Printf
 
 	impl.tableName = config.PostgresTable
+	impl.dataSources = strings.Split(config.DataSourceNames, " ")
 	impl.db = db
 	return impl, nil
 }
@@ -68,7 +71,7 @@ func (ci *cacheProxyImpl) Exists(keys []string) (bool, error) {
 
 	q := ci.db.Select("id").
 		From(ci.tableName).
-		Where(dbx.In("id", toInterfaceArray(keys)...))
+		Where(dbx.And(dbx.In("id", toInterfaceArray(keys)...), dbx.In("source", toInterfaceArray(ci.dataSources)...)))
 
 	start := time.Now()
 	err := q.All(&ids)
@@ -79,7 +82,7 @@ func (ci *cacheProxyImpl) Exists(keys []string) (bool, error) {
 		return false, err
 	}
 
-	//log.Printf("INFO: lookup %d keys in %d milliseconds (%d results)", len( keys ), elapsed, len(ids))
+	//log.Printf("INFO: lookup %d keys in %d milliseconds (%d results)", len(keys), elapsed, len(ids))
 
 	// verify that we received all ids
 	if len(ids) != len(keys) {
